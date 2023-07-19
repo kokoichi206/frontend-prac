@@ -27,3 +27,7 @@ npm run dev
 ```sh
 npm run build
 ```
+
+## Acknowledgments
+
+I learned this from [youtube](https://www.youtube.com/watch?v=I_xLMmNeLDY&ab_channel=LaithAcademy). Thanks!!
