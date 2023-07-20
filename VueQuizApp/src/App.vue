@@ -1,15 +1,27 @@
+<script setup>
+  import q from './data/quizes.json'
+  import { ref, watch } from 'vue'
+
+  const quizes = ref(q);
+  const search = ref('');
+
+  watch(search, (val) => {
+    quizes.value = q.filter(quiz => quiz.name.toLowerCase().includes(val.toLowerCase()));
+  })
+</script>
+
 <template>
   <div class="container">
     <header>
       <h1>Quizes</h1>
-      <input type="text" placeholder="Search...">
+      <input v-model.trim="search" type="text" placeholder="Search...">
     </header>
     <div class="options-container">
-      <div class="card">
-        <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?w=2000" alt="">
+      <div v-for="quiz in quizes" class="card">
+        <img :src="quiz.img" alt="">
         <div class="card-text">
-          <h2>Math</h2>
-          <p>15 questions</p>
+          <h2>{{ quiz.name }}</h2>
+          <p>{{ quiz.questions.length }}} questions</p>
         </div>
       </div>
     </div>
