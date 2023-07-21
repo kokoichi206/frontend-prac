@@ -6,3 +6,5 @@
 - `:key="note.id"`
   - key がないと、削除時に、１回全部削除して作り直す、みたいな挙動になる！
   - good practice!!!
+- Vue is a single page application
+  - one index.html!!
