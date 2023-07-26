@@ -2,4 +2,16 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ``` sh
 npx create-next-app@latest --ts next-sample
+
+npm run dev
+```
+
+## rendering
+
+### SSG
+
+``` sh
+npm run build
+
+npm run start
 ```
