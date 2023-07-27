@@ -196,4 +196,8 @@
       - useState, useReducer は状態が更新されるたびに再描画が発生！
   - DOM の参照
     - ref をコンポーネントに渡すと、この要素がマウントされた時、ref.current に DOM の参照がセットされる
-  - 
+
+## Unit test
+
+- React Testing Library
+  - DOM Testing Library を使っている

@@ -15,3 +15,12 @@ npm run build
 
 npm run start
 ```
+
+## unit test
+
+``` sh
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom jest-environment-jsdom
+
+# jest.config.js, jest.setup.js を用意
+npm run test
+```
