@@ -6,7 +6,7 @@ import prismjs from 'prismjs';
 
 import { Client } from '@notionhq/client';
 import { GetStaticProps, NextPage } from 'next';
-import { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
+import { QueryDatabaseResponse, RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
 
@@ -35,81 +35,104 @@ export type Post = {
 };
 
 type StaticProps = {
-  post: Post | null;
+  posts: Post[];
 };
 
-// ビルド時に実行され、静的なものとして扱われる。
-export const getStaticProps: GetStaticProps<StaticProps> = async () => {
-  const database = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID || '',
-    filter: {
-      and: [
-        {
-          property: 'Published',
-          checkbox: {
-            equals: true,
+export const getPosts = async (col1?: string) => {
+  let database: QueryDatabaseResponse | undefined = undefined;
+  if (col1) {
+    database = await notion.databases.query({
+      database_id: process.env.NOTION_DATABASE_ID || '',
+      filter: {
+        and: [
+          {
+            property: 'Published',
+            checkbox: {
+              equals: true,
+            },
           },
+          {
+            property: 'col1',
+            rich_text: {
+              equals: col1,
+            },
+          },
+        ],
+      },
+    });
+  } else {
+    database = await notion.databases.query({
+      database_id: process.env.NOTION_DATABASE_ID || '',
+      filter: {
+        and: [
+          {
+            property: 'Published',
+            checkbox: {
+              equals: true,
+            },
+          },
+        ],
+      },
+      sorts: [
+        {
+          timestamp: 'created_time',
+          direction: 'descending',
         },
       ],
-    },
-    sorts: [
-      {
-        timestamp: 'created_time',
-        direction: 'descending',
-      },
-    ],
-  });
-
-  // Q. depth のへん、どいういう意味だっけ。
-  // A. https://nodejs.org/api/util.html#util_util_inspect_object_options
-  // Q. console のリントをしないためには？
-  // A. https://eslint.org/docs/rules/no-console
-  // eslint-disable-next-line no-console
-  console.dir(database.results[0], { depth: null });
-  const page = database.results[0];
-  if (!page) {
-    return {
-      props: {
-        post: null,
-      },
-    };
+    });
   }
 
-  if (!('properties' in page)) {
-    return {
-      props: {
-        post: {
-          id: page.id,
-          title: null,
-          col1: null,
-          createdTs: null,
-          lastEditedTs: null,
-          contents: [],
-        },
-      },
-    };
+  if (!database) return [];
+
+  const posts: Post[] = [];
+
+  for (const page of database.results) {
+    // Q. depth のへん、どいういう意味だっけ。
+    // A. https://nodejs.org/api/util.html#util_util_inspect_object_options
+    // Q. console のリントをしないためには？
+    // A. https://eslint.org/docs/rules/no-console
+    if (!page) {
+      continue;
+    }
+
+    if (!('properties' in page)) {
+      continue;
+    }
+
+    let title: string | null = null;
+    if (page.properties['Name']?.type === 'title') {
+      title = (page.properties['Name'].title as RichTextItemResponse[])[0]?.plain_text ?? null;
+    }
+
+    let col1: string | null = null;
+    if (page.properties['col1']?.type === 'rich_text') {
+      col1 = (page.properties['col1'].rich_text as RichTextItemResponse[])[0]?.plain_text ?? null;
+    }
+
+    let createdTs: string | null = null;
+    if ('created_time' in page) {
+      createdTs = page.created_time;
+    }
+
+    let lastEditedTs: string | null = null;
+    if ('last_edited_time' in page) {
+      createdTs = page.last_edited_time;
+    }
+
+    posts.push({
+      id: page.id,
+      title,
+      col1,
+      createdTs,
+      lastEditedTs,
+      contents: [],
+    });
   }
 
-  let title: string | null = null;
-  if (page.properties['Name']?.type === 'title') {
-    title = (page.properties['Name'].title as RichTextItemResponse[])[0]?.plain_text ?? null;
-  }
+  return posts;
+};
 
-  let col1: string | null = null;
-  if (page.properties['col1']?.type === 'rich_text') {
-    col1 = (page.properties['col1'].rich_text as RichTextItemResponse[])[0]?.plain_text ?? null;
-  }
-
-  let createdTs: string | null = null;
-  if ('created_time' in page) {
-    createdTs = page.created_time;
-  }
-
-  let lastEditedTs: string | null = null;
-  if ('last_edited_time' in page) {
-    createdTs = page.last_edited_time;
-  }
-
+export const getPostContents = async (id: string) => {
   const blocks = await notion.blocks.children.list({
     // これで pages が取得できなかったので、block_id を直接指定することにした。
     // block_id: database.results[0]?.id,
@@ -119,6 +142,7 @@ export const getStaticProps: GetStaticProps<StaticProps> = async () => {
   const contents: Content[] = [];
   blocks.results.forEach((block) => {
     if (!('type' in block)) {
+      // forEach を抜ける。
       return;
     }
 
@@ -163,90 +187,103 @@ export const getStaticProps: GetStaticProps<StaticProps> = async () => {
     }
   });
 
-  const post: Post = {
-    id: page.id,
-    title,
-    col1,
-    createdTs,
-    lastEditedTs,
-    contents,
-  };
+  return contents;
+};
 
-  console.dir(post, { depth: null });
+// ビルド時に実行され、静的なものとして扱われる。
+export const getStaticProps: GetStaticProps<StaticProps> = async () => {
+  const posts = await getPosts();
+  // Promise.all で並列処理する。
+  const contentsList = await Promise.all(
+    posts.map((post) => {
+      return getPostContents(post.id);
+    }),
+  );
+  posts.forEach((post, index) => {
+    post.contents = contentsList[index];
+  });
 
   return {
-    props: { post },
+    props: { posts },
   };
 };
 
-const Home: NextPage<StaticProps> = ({ post }) => {
+const Home: NextPage<StaticProps> = ({ posts }) => {
   // HTML レンダリング後に prismjs を実行する！
   useEffect(() => {
     prismjs.highlightAll();
   }, []);
 
-  if (!post) return null;
-  console.log(post);
   return (
     <div className={styles.wrapper}>
-      <div>
-        <h1 className={styles.title}>{post.title}</h1>
-        <div className={styles.timestampWrapper}>
-          <div>
-            <div className={styles.timestamp}>CreatedAt: {dayjs(post.createdTs).format('YYYY-MM-DD HH:mm:ss')}</div>
-            <div className={styles.timestamp}>EditedAt: {dayjs(post.lastEditedTs).format('YYYY-MM-DD HH:mm:ss')}</div>
-          </div>
-        </div>
-      </div>
-      <div>
-        {post.contents.map((content, index) => {
-          const key = `${post.id}_${index}`;
-          switch (content.type) {
-            case 'paragraph':
-              return (
-                <p key={key} className={styles.paragraph}>
-                  {content.text}
-                </p>
-              );
-            case 'heading_1':
-              return (
-                <h1 key={key} className={styles.heading1}>
-                  {content.text}
-                </h1>
-              );
-            case 'heading_2':
-              return (
-                <h2 key={key} className={styles.heading2}>
-                  {content.text}
-                </h2>
-              );
-            case 'heading_3':
-              return (
-                <h3 key={key} className={styles.heading3}>
-                  {content.text}
-                </h3>
-              );
-            case 'quote':
-              return (
-                <blockquote key={key} className={styles.quote}>
-                  {content.text}
-                </blockquote>
-              );
-            case 'code':
-              return (
-                <pre
-                  key={key}
-                  className={`
+      {posts.map((post) => {
+        return (
+          <div className={styles.post} key={post.id}>
+            <div>
+              <h1 className={styles.title}>{post.title}</h1>
+              <div className={styles.timestampWrapper}>
+                <div>
+                  <div className={styles.timestamp}>
+                    CreatedAt: {dayjs(post.createdTs).format('YYYY-MM-DD HH:mm:ss')}
+                  </div>
+                  <div className={styles.timestamp}>
+                    EditedAt: {dayjs(post.lastEditedTs).format('YYYY-MM-DD HH:mm:ss')}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              {post.contents.map((content, index) => {
+                const key = `${post.id}_${index}`;
+                switch (content.type) {
+                  case 'paragraph':
+                    return (
+                      <p key={key} className={styles.paragraph}>
+                        {content.text}
+                      </p>
+                    );
+                  case 'heading_1':
+                    return (
+                      <h1 key={key} className={styles.heading1}>
+                        {content.text}
+                      </h1>
+                    );
+                  case 'heading_2':
+                    return (
+                      <h2 key={key} className={styles.heading2}>
+                        {content.text}
+                      </h2>
+                    );
+                  case 'heading_3':
+                    return (
+                      <h3 key={key} className={styles.heading3}>
+                        {content.text}
+                      </h3>
+                    );
+                  case 'quote':
+                    return (
+                      <blockquote key={key} className={styles.quote}>
+                        {content.text}
+                      </blockquote>
+                    );
+                  case 'code':
+                    return (
+                      <pre
+                        key={key}
+                        className={`
                     ${styles.code}
                     lang-${content.language}
                   `}
-                >
-                  <code>{content.text}</code>
-                </pre>
-              );
-          }
-        })}
-      </div>
+                      >
+                        <code>{content.text}</code>
+                      </pre>
+                    );
+                }
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
