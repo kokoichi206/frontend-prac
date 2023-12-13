@@ -13,4 +13,6 @@ npx create-next-app@latest nextjs-sample --no-app --no-tailwind
 
 ``` sh
 npm install @notionhq/client
+
+npm install dayjs
 ```
