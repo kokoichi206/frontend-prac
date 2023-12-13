@@ -24,3 +24,10 @@ npm install dayjs
 npm install prismjs babel-plugin-prismjs
 npm install --save-dev @types/prismjs
 ```
+
+- Link コンポーネント
+  - 擬似的なページ遷移
+  - 差分の js, CSS ファイルだけを取得可能
+  - cf.
+    - **通常の a タグを使った繊維では、アプリケーション全体を動作させる js を再度取得することになる！**
+- React コンポーネントの型は FunctionComponent で定義

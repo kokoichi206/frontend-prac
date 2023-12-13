@@ -1,7 +1,3 @@
-import Head from 'next/head';
-import Image from 'next/image';
-import { Inter } from 'next/font/google';
-import styles from '@/styles/Home.module.css';
 import prismjs from 'prismjs';
 
 import { Client } from '@notionhq/client';
@@ -9,6 +5,9 @@ import { GetStaticProps, NextPage } from 'next';
 import { QueryDatabaseResponse, RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
+import Link from 'next/link';
+import { Layout } from '@/lib/component/Layout';
+import { PostComponent } from '@/lib/component/Post';
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -215,76 +214,11 @@ const Home: NextPage<StaticProps> = ({ posts }) => {
   }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <Layout>
       {posts.map((post) => {
-        return (
-          <div className={styles.post} key={post.id}>
-            <div>
-              <h1 className={styles.title}>{post.title}</h1>
-              <div className={styles.timestampWrapper}>
-                <div>
-                  <div className={styles.timestamp}>
-                    CreatedAt: {dayjs(post.createdTs).format('YYYY-MM-DD HH:mm:ss')}
-                  </div>
-                  <div className={styles.timestamp}>
-                    EditedAt: {dayjs(post.lastEditedTs).format('YYYY-MM-DD HH:mm:ss')}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div>
-              {post.contents.map((content, index) => {
-                const key = `${post.id}_${index}`;
-                switch (content.type) {
-                  case 'paragraph':
-                    return (
-                      <p key={key} className={styles.paragraph}>
-                        {content.text}
-                      </p>
-                    );
-                  case 'heading_1':
-                    return (
-                      <h1 key={key} className={styles.heading1}>
-                        {content.text}
-                      </h1>
-                    );
-                  case 'heading_2':
-                    return (
-                      <h2 key={key} className={styles.heading2}>
-                        {content.text}
-                      </h2>
-                    );
-                  case 'heading_3':
-                    return (
-                      <h3 key={key} className={styles.heading3}>
-                        {content.text}
-                      </h3>
-                    );
-                  case 'quote':
-                    return (
-                      <blockquote key={key} className={styles.quote}>
-                        {content.text}
-                      </blockquote>
-                    );
-                  case 'code':
-                    return (
-                      <pre
-                        key={key}
-                        className={`
-                    ${styles.code}
-                    lang-${content.language}
-                  `}
-                      >
-                        <code>{content.text}</code>
-                      </pre>
-                    );
-                }
-              })}
-            </div>
-          </div>
-        );
+        return <PostComponent post={post} key={post.id} />;
       })}
-    </div>
+    </Layout>
   );
 };
 
