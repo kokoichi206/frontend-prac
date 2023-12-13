@@ -177,8 +177,15 @@ export const getStaticProps: GetStaticProps<StaticProps> = async () => {
 };
 
 const Home: NextPage<StaticProps> = ({ post }) => {
+  if (!post) return null;
   console.log(post);
-  return <div></div>;
+  return (
+    <div className={styles.wrapper}>
+      <div>
+        <h1>{post.title}</h1>
+      </div>
+    </div>
+  );
 };
 
 export default Home;
