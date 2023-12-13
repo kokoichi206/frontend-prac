@@ -1,4 +1,4 @@
-``` sh
+```sh
 # --no-app means this project is set up with Pages Router
 npx create-next-app@latest nextjs-sample --no-app --no-tailwind
 ```
@@ -11,8 +11,16 @@ npx create-next-app@latest nextjs-sample --no-app --no-tailwind
   - API
   - Markup
 
-``` sh
+```sh
 npm install @notionhq/client
 
 npm install dayjs
+```
+
+- [prismjs](https://prismjs.com/)
+  - Dead Simple!
+
+``` sh
+npm install prismjs babel-plugin-prismjs
+npm install --save-dev @types/prismjs
 ```

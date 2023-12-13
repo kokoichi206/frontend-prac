@@ -2,11 +2,13 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { Inter } from 'next/font/google';
 import styles from '@/styles/Home.module.css';
+import prismjs from 'prismjs';
 
 import { Client } from '@notionhq/client';
 import { GetStaticProps, NextPage } from 'next';
 import { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 import dayjs from 'dayjs';
+import { useEffect } from 'react';
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -178,6 +180,11 @@ export const getStaticProps: GetStaticProps<StaticProps> = async () => {
 };
 
 const Home: NextPage<StaticProps> = ({ post }) => {
+  // HTML レンダリング後に prismjs を実行する！
+  useEffect(() => {
+    prismjs.highlightAll();
+  }, []);
+
   if (!post) return null;
   console.log(post);
   return (
@@ -227,7 +234,13 @@ const Home: NextPage<StaticProps> = ({ post }) => {
               );
             case 'code':
               return (
-                <pre key={key} className={styles.code}>
+                <pre
+                  key={key}
+                  className={`
+                    ${styles.code}
+                    lang-${content.language}
+                  `}
+                >
                   <code>{content.text}</code>
                 </pre>
               );
