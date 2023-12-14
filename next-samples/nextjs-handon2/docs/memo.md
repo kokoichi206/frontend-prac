@@ -14,3 +14,13 @@
 ``` sh
 npm install react-icons
 ```
+
+- tailwind
+  - `w-[1200px] mx-auto`
+    - 幅 1200px の中央寄せ
+  - `last:mb-0`
+    - 親要素の、最後の子要素だけ mb-0 の設定
+- CSS
+  - [backdrop-filter](https://developer.mozilla.org/ja/docs/Web/CSS/backdrop-filter)
+- next/font
+  - ビルド時に web フォントを埋め込むことで初回描画時から安定して表示させる
