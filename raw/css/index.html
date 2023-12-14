@@ -1,0 +1,22 @@
+<html>
+  <style>
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      50% {
+        transform: rotate(360deg);
+      }
+      100% {
+        transform: rotate(0deg);
+      }
+    }
+    .animate-spin {
+      animation: spin 2s linear infinite;
+    }
+  </style>
+  <p>
+    <img src="gophers.jpeg" alt="gophers" style="position: absolute; z-index: 1;" />
+    <img src="gophers.jpeg" alt="gophers" class="animate-spin" style="position: absolute; z-index: 2;" />
+  </p>
+</html>
