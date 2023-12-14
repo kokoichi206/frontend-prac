@@ -1,12 +1,32 @@
 "use client";
 
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useState, useTransition } from "react";
 import { Photo, PhotoSearchResponse } from "../types";
 import { VscSearch } from "react-icons/vsc";
+import { Loading } from "./Loading";
+import { PhotoList } from "./PhotoList";
 
-export const Search: FunctionComponent = () => {
+const PhotoListWrapper: FunctionComponent<{
+  loading: boolean;
+  searchedPhotos: Photo[] | null;
+  randomPhotos: Photo[];
+}> = ({ loading, searchedPhotos, randomPhotos }) => {
+  if (loading) {
+    return <Loading />;
+  }
+  if (searchedPhotos) {
+    return <PhotoList photos={searchedPhotos} />;
+  }
+  return <PhotoList photos={randomPhotos} />;
+};
+
+export const Search: FunctionComponent<{
+  randomPhotos: Photo[];
+}> = ({ randomPhotos }) => {
   const [query, setQuery] = useState<string | null>(null);
+  const [searching, setSearching] = useState<boolean>(false);
   const [searchedPhotos, setSearchedPhotos] = useState<Photo[] | null>(null);
+  const [loading, startTransition] = useTransition();
 
   return (
     <div>
@@ -21,6 +41,7 @@ export const Search: FunctionComponent = () => {
         <button
           className="bg-gray-700 py-2 px-4"
           onClick={async () => {
+            setSearching(true);
             const response = await fetch(`http://localhost:3000/api/search`, {
               method: "POST",
               headers: {
@@ -29,13 +50,20 @@ export const Search: FunctionComponent = () => {
               body: JSON.stringify({ query }),
             });
             const json: PhotoSearchResponse = await response.json();
-            console.log(json);
-            setSearchedPhotos(json.results);
+            startTransition(() => {
+              setSearchedPhotos(json.results);
+            });
+            setSearching(false);
           }}
         >
           <VscSearch />
         </button>
       </div>
+      <PhotoListWrapper
+        loading={searching || loading}
+        searchedPhotos={searchedPhotos}
+        randomPhotos={randomPhotos}
+      />
     </div>
   );
 };
