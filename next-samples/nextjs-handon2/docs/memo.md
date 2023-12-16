@@ -24,3 +24,5 @@ npm install react-icons
   - [backdrop-filter](https://developer.mozilla.org/ja/docs/Web/CSS/backdrop-filter)
 - next/font
   - ビルド時に web フォントを埋め込むことで初回描画時から安定して表示させる
+- error.tsx
+  - **エラーが発生した際にエクスポートした Error コンポーネントの内容を表示できる！**
