@@ -3,11 +3,11 @@ const { data } = await useFetch("/api/hello");
 </script>
 
 <template>
-  <h1>This is Nuxt template.</h1>
+  <h1>Home</h1>
   <div>
     {{ data }}
   </div>
   <p>
-    {{ $t('welcome') }}
+    {{ $t("welcome") }}
   </p>
 </template>
