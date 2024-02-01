@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   },
   rootDir: "./src",
 
-  modules: ["@nuxt/test-utils/module", "@nuxtjs/i18n", "@nuxtjs/storybook"],
+  modules: ["@nuxt/test-utils/module", "@nuxtjs/i18n"],
   i18n: {
     /** @link https://v8.i18n.nuxtjs.org/guide/lazy-load-translations */
     lazy: true,
@@ -19,4 +19,5 @@ export default defineNuxtConfig({
       },
     ],
   },
+  ssr: false,
 });
