@@ -1,0 +1,19 @@
+{
+  "name": "quickstart",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "^1.1.7",
+    "@types/figlet": "^1.5.8"
+  },
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun --hot run index.ts"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "figlet": "^1.7.0"
+  }
+}
