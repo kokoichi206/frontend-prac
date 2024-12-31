@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:prisma": "prisma generate"
+    "gen:prisma": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx scripts/db-seed.ts",
+    "db:migrate": "prisma migrate",
+    "migration": "npx prisma migrate dev --name $npm_config_name"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
@@ -25,6 +29,7 @@
     "postcss": "^8",
     "prisma": "^6.1.0",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }
