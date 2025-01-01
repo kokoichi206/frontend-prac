@@ -1,5 +1,6 @@
 "use client";
 
+import { postBBS } from "@/app/postBBS";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,7 +18,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const formSchema = z.object({
+export const formSchema = z.object({
   username: z
     .string()
     .min(2, { message: "Username must be at least 2 characters long" }),
@@ -31,8 +32,6 @@ const formSchema = z.object({
 });
 
 const CreateBBSPage = () => {
-  const router = useRouter();
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,18 +44,7 @@ const CreateBBSPage = () => {
   // z.infer で zod の型だけを取り出せる！
   async function onSubmit(value: z.infer<typeof formSchema>) {
     const { username, title, content } = value;
-    try {
-      await fetch("http://localhost:3000/api/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, title, content }),
-      });
-      router.push("/");
-    } catch (err) {
-      console.error(err);
-    }
+    postBBS({ username, title, content });
   }
 
   return (
