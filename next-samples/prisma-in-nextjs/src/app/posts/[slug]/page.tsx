@@ -1,5 +1,13 @@
 import prisma from "@/lib/db";
 
+// import { unstable_cache as cache } from "next/cache";
+
+// const getCachedPost = cache((slug: string) => {
+//   return prisma.post.findUnique({
+//     where: { slug },
+//   });
+// });
+
 const PostDetail = async ({ params }: { params: { slug: string } }) => {
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },

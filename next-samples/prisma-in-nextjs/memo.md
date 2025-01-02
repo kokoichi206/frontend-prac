@@ -16,3 +16,4 @@ npx prisma init --datasource-provider sqlite
 - official documentation
   - [Pagination](https://www.prisma.io/docs/orm/prisma-client/queries/pagination)
   - [seed](https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding)
+  - [Caching](https://www.prisma.io/docs/accelerate/caching)
