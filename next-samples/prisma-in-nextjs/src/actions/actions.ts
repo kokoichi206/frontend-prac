@@ -12,6 +12,11 @@ export async function createPost(formData: FormData) {
         .toLowerCase(),
       content: formData.get("content") as string,
       //   published: true,
+      author: {
+        connect: {
+          email: "john@gmail.com",
+        },
+      },
     },
   });
 
