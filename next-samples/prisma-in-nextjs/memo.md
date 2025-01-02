@@ -7,9 +7,19 @@ npx prisma init --datasource-provider sqlite
 - めっちゃいいな
   - `@updatedAt`
   - db push の試しながら進める感じ
+    - prototyping
   - `npx prisma studio`
   - connectOrCreate
     - seed 以外で使う場面ある？あるか
+  - pulse
+    - 気になるので後で触ってみる
+    - https://www.prisma.io/pulse
+
+### migration
+
+``` sh
+npx prisma migrate dev --name init
+```
 
 ### memo
 
