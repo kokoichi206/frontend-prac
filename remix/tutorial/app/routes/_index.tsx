@@ -1,12 +1,13 @@
 import type { MetaFunction } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useNavigate } from "@remix-run/react";
+import { useEffect } from "react";
 import { addUser, findUserByEmailAndPassword, User } from "users";
 import { v4 as uuidv4 } from "uuid";
 
 type ActionData = {
   error?: string;
   user?: User;
-}
+};
 
 export const meta: MetaFunction = () => {
   return [
@@ -48,7 +49,25 @@ export const action = async ({ request }: { request: Request }) => {
 };
 
 export default function Index() {
-  const actionData = useActionData();
+  const actionData = useActionData<ActionData>();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const LOCAL_STORAGE_USER_KEY = "user";
+    const storedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      location.pathname = `profile/${user.id}`;
+    }
+
+    if (actionData?.user) {
+      localStorage.setItem(
+        LOCAL_STORAGE_USER_KEY,
+        JSON.stringify(actionData.user)
+      );
+      navigate(`profile/${actionData.user.id}`);
+    }
+  }, [actionData, navigate]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
